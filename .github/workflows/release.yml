@@ -39,16 +39,18 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
       - name: Extract application version
         id: get_version
         run: |
-          version=$(python -c "import sys; \
-          try: \
-              import collectmeteranalog.__version__ as v; \
-              print(v.__version__); \
-          except Exception: \
-            print('0.0.0')")
-            
+          version=$(python << EOF
+            try:
+                import collectmeteranalog.__version__ as v
+                print(v.__version__)
+            except Exception:
+                print('0.0.0')
+          EOF
+          )
           echo "VERSION=v$version" >> $GITHUB_ENV
 
       - name: Setup Python
