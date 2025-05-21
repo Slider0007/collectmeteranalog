@@ -1,10 +1,8 @@
 name: 'Build'
 on:
   push:
-  workflow_dispatch:
 
 jobs:
-  
   build:
     name: Build Executables
     runs-on: ${{ matrix.os }}
@@ -13,6 +11,7 @@ jobs:
       matrix:
         include:
           - os: windows-latest
+            OS_NAME: windows
             BUILD_CMD: pyinstaller collectmeteranalog.spec
             POST_BUILD_CMD: >+
               Compress-Archive -Path dist/* -Destination dist/collectmeteranalog-windows.zip
@@ -20,6 +19,7 @@ jobs:
             ASSET_MIME:
               application/zip
           - os: ubuntu-latest
+            OS_NAME: linux
             BUILD_CMD: pyinstaller collectmeteranalog.spec
             POST_BUILD_CMD: >
               cd dist/ &&
@@ -28,6 +28,7 @@ jobs:
             OUT_FILE_NAME: collectmeteranalog-linux.zip
             ASSET_MIME: application/zip
           - os: macos-latest
+            OS_NAME: macos
             BUILD_CMD: pyinstaller collectmeteranalog.spec
             POST_BUILD_CMD: >
               cd dist/ &&
@@ -39,10 +40,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Extract application version
+        id: get_version
+        run: |
+          version=$(python -c "
+            try:
+                import collectmeteranalog.__version__ as v
+                print(v.__version__)
+            except Exception:
+                print('0.0.0')
+            ")
+          echo "VERSION=v$version" >> $GITHUB_ENV
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.11'
 
       - name: Install dependencies for ${{ matrix.os }}
         run: |
@@ -59,17 +72,18 @@ jobs:
 
       - name: Post-Build for ${{ matrix.os }}
         if: ${{ matrix.POST_BUILD_CMD != '' }}
-        run: ${{ matrix.POST_BUILD_CMD }}
+        run: |
+          ${{ matrix.POST_BUILD_CMD }}
+          mv dist/${{ matrix.OUT_FILE_NAME }} dist/collectmeteranalog-${{ matrix.OS_NAME }}-${{ env.VERSION }}.zip
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          path: './dist/collectmeteranalog-${{ matrix.OS_NAME }}-${{ env.VERSION }}.zip'
+          name: 'collectmeteranalog-${{ matrix.OS_NAME }}-${{ env.VERSION }}'
 
       - name: Release
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: './dist/${{matrix.OUT_FILE_NAME}}'   
-
-      - name: Upload created build on action
-        uses: actions/upload-artifact@v4
-        with:
-          path: './dist/${{matrix.OUT_FILE_NAME}}'
-          name: '${{runner.os}}-${{matrix.OUT_FILE_NAME}}'
- 
+          files: './dist/collectmeteranalog-${{ matrix.OS_NAME }}-${{ env.VERSION }}.zip'
