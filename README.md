@@ -105,7 +105,7 @@ After all images are labeled, the window closes automaticly.
 
 If the GUI is slow, you can switch off the prediction of the internal neuronal model
 
-    python3 -m collectmeteranalog --collect=<your-esp32name> --days=3 --model=off
+    python3 -m collectmeteranalog --collect=<IP-ADDRESS> --days=3 --model=off
 
 Sometimes the Labels on the ticks are to tight. You can change the ticks with
 
