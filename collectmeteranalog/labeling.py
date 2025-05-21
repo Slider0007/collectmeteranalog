@@ -1,5 +1,6 @@
 from glob import glob
 import os
+import sys
 from PIL import Image
 import matplotlib
 import numpy as np
@@ -85,7 +86,7 @@ def label(path, startlabel=0.0, labelfile_path=None, ticksteps=1):
 
     if (len(files)==0):
         print("No images found in defined path")
-        exit(1)
+        sys.exit(1)
 
 
     print(f"Startlabel:", startlabel)
@@ -127,7 +128,7 @@ def label(path, startlabel=0.0, labelfile_path=None, ticksteps=1):
     #ax2.spines['polar'].set_visible(False)
     #plt.text(1.1, 0.9, "You can use cursor key controll also:\n\nleft/right = prev/next\nup/down=in/decrease value\ndelete=remove.", fontsize=6)
     prediction = predict(img)
-    if (prediction == -1 and labelfile_prediction[i] != None):
+    if (prediction == -1 and not pd.isna(labelfile_prediction[i])):
         prediction = labelfile_prediction[i]
 
     ax=plt.gca()
