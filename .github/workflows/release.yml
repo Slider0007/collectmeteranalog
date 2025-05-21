@@ -42,15 +42,9 @@ jobs:
 
       - name: Extract application version
         id: get_version
+        shell: bash
         run: |
-          version=$(python << EOF
-      try:
-          import collectmeteranalog.__version__ as v
-          print(v.__version__)
-      except Exception:
-          print('0.0.0')
-      EOF
-      )
+          version=$(python -c "import collectmeteranalog.__version__ as v; print(v.__version__)") || version="0.0.0"
           echo "VERSION=v$version" >> $GITHUB_ENV
 
       - name: Setup Python
