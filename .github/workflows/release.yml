@@ -24,7 +24,7 @@ jobs:
             POST_BUILD_CMD: >
               cd dist/ &&
               ls -Rls &&
-              zip -r9 collectmeteranalog-linux.zip collectmeteranalog
+              zip -r9 collectmeteranalog-linux.zip collectmeteranalog &&
               cd ..
             OUT_FILE_NAME: collectmeteranalog-linux.zip
             ASSET_MIME: application/zip
@@ -34,7 +34,7 @@ jobs:
             POST_BUILD_CMD: >
               cd dist/ &&
               ls -Rls &&
-              zip -r9 collectmeteranalog-macos.zip collectmeteranalog
+              zip -r9 collectmeteranalog-macos.zip collectmeteranalog &&
               cd ..
             OUT_FILE_NAME: collectmeteranalog-macos.zip
             ASSET_MIME: application/zip
@@ -65,8 +65,7 @@ jobs:
         id: get_version
         shell: bash
         run: |
-          version=$(python -c "import sys, io, contextlib; f=io.StringIO(); with contextlib.redirect_stdout(f), \
-          contextlib.redirect_stderr(f): import collectmeteranalog.__version__ as v; print(v.__version__)" 2>/dev/null) || version="0.0.0"
+          version=$(python -c "import sys, io, contextlib; f=io.StringIO(); with contextlib.redirect_stdout(f), contextlib.redirect_stderr(f): import collectmeteranalog.__version__ as v; print(v.__version__)" 2>/dev/null) || version="0.0.0"
           echo "VERSION=v$version" >> $GITHUB_ENV
 
       - name: Pre-Build for ${{ matrix.os }}
