@@ -8,7 +8,6 @@ a = Analysis(
     ['run.py'],
     pathex=[],
     binaries=[],
-    datas=datas,
     hiddenimports=['requests'],
     hookspath=[],
     runtime_hooks=[],
