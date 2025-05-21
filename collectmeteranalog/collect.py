@@ -3,6 +3,7 @@ import urllib.request
 import re
 import requests
 import os
+import sys
 from PIL import Image
 from datetime import date, timedelta
 import imagehash
@@ -44,7 +45,7 @@ def readimages(servername, output_dir, daysback=15):
                     continue
                 except URLError as ue:
                     print("URL-Error! Server not available? Requested URL was: ", serverurl + "/fileserver/log/analog/" + picturedate + "/" + hour + "/" )
-                    exit(1)
+                    sys.exit(1)
                 print("Loading ... ",  servername + "/" + picturedate + "/" + hour)
                 
                 mybytes = fp.read()

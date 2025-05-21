@@ -24,7 +24,6 @@ exe = EXE(
     a.scripts,
     a.binaries,
     a.zipfiles,
-    a.datas,
     [],
     name='collectmeteranalog',
     debug=False,

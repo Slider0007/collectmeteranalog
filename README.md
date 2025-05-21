@@ -1,83 +1,103 @@
-# Readout edge AI pointer from meters
+# Analog Pointer Image Collection And Labeling Application
 
-Help us to get more image data and improve your own analog pointer meter predictions!
+Help us to get more image data and improve the analog pointer predictions of your meter device!
 
-## Setup your watermeter device
+
+## Device Preparation
+
+### 1. Configure ROIs (Regions Of Interest) properly
+
+Before you read out the images, have to properly configure your ROIs. It is essential to have good images to 
+successfully train the neuronal network. Please check 
+[ROI Configuration Documenation](https://github.com/jomjol/AI-on-the-edge-device/wiki/ROI-Configuration).
+
+**Note: It is important to have the center of the analog pointer centered of the ROI image.**
+
+### 2. Enable Image Logging
 
 Before you can read the images, you have to configure the logging of the pointers in your device.
-
-Go to you devices and open the configuration.
-![Goto Configuration](images/Menu-Config.png)
-
-Now setup the *LogfileRetentionsInDays*. You have to select the checkbox if not already configured.
-
+1. Go to you devices and open the configuration.
+<br><img src="images/Menu-Config.png" width="800">
+2. Now setup the *LogfileRetentionsInDays*. You have to select the checkbox if not already configured.
 Please do not change the path of *LogImageLocation* ( /log/analog )
+<br><img src="images/Config-LogImages.png" width="800">
+3. After enabling the image logging, you need wait a few days before you can readout all the images.
 
-![Setup LogfileRetentionInDays](images/Config-LogImages.png)
 
-If you had to enable the image logging, you need wait a few days before you can readout all the images.
+## Image Collection
 
-### Configure ROIs (regions of interest) correctly
+### Installation
 
-Before you read out the images, have a look at
+#### Option 1: Precompiled Executables (Windows, MacOS, Linux)
 
-<https://github.com/jomjol/AI-on-the-edge-device/wiki/ROI-Configuration> . It is essential to get good images to learn the neuronal network.
+The [releases](https://github.com/haverland/collectmeteranalog/releases) contains packages for the  operating systems Windows, Linux and MacOS.
+Download the suitable package, unzip the content and call the console application from command line / terminal:
 
-Espessially for analog counter is to center the picture on the pointer.
+```bash
+# Windows
+collectmeteranalog.exe --collect=<METER IP or NAME>
 
-### Read the images
+# Linux
+./collectmeteranalog --collect=<METER IP or NAME>
 
- 
-#### Install collectmeteranalog
+# macOS
+./collectmeteranalog --collect=<METER IP or NAME>
+```
 
-The [releases](https://github.com/haverland/collectmeteranalog/releases) contains downloads for Windows, Linux and MacOS. But the prefered install is via python's pip.
+The application startup is a little bit slow. If everthing is configured properly, it's starting with downloading 
+all images of the last three days (suing default parameter: --days=3) from the meter and save the images into a subfolder 
+called `data`. The image names will be hashed for your privacy. Be patiant, it will takes a while. After the download is 
+completed any duplicates will be automaticly removed. Finally you have a folder named `data/labled` with the pre-processed images.
 
-##### Python
+#### Option 2: Python Package
 
-This is mostly the easiest part, if you have installed python on your computer. If not you need to install it ( <https://www.python.org/downloads/> ).
-
-Open a terminal and type in:
-
+1. Install Python from [python.org](https://www.python.org/downloads/) if not already installed. .
+2. Install the package:
+```bash
     pip install git+https://github.com/haverland/collectmeteranalog
+```
+3. Collect images:
+```bash
+    python -m collectmeteranalog --collect=<METER IP or NAME>
+```
+The application startup is a little bit slow. If everthing is configured properly, it's starting with downloading 
+all images of the last three days (suing default parameter: --days=3) from the meter and save the images into a subfolder 
+called `data`. The image names will be hashed for your privacy. Be patiant, it will takes a while. After the download is 
+completed any duplicates will be automaticly removed. Finally you have a folder named `data/labled` with the pre-processed images.
 
-On mac and windows the prediction is not available. It shows everytime a -1. You can manually install it by 
+#### Install Prediction Capability For Image Labeling (Optional)
 
-    pip install tensorflow-macos 
-or
+Windows and MacOS excecutables do not have any prediction functionality pre-installed, because the tflite-runtime is only available for linux and 
+the complete tensorflow library is to large (600MB) for a single file application. This functionality is only used for labeling the images, but
+it will also functional without installation. The predicted value will not be displayed.
 
-    pip install tensorflow
+To install this functionality:
+```bash
+# Windows
+pip install tensorflow
 
-The application is called via console
+# Mac
+pip install tensorflow-macos 
+```
 
-    python3 -m collectmeteranalog --collect=<your-esp32name> --days=3
+## Image Labeling
 
-It downloads now all images in a "data" subfolder. The image names will be hashed for your privacy.
-Be patiant. It will takes a while.
+This application can also be used to properly label the images or adjust existing labels.
+Either labeling process is started automatically and opens the label window after image collection is completed 
+or application can be started manually just for image labeling.
 
-After it the duplicates will be automaticly removed and finally you have a folder named data/labled with the images.
+    1. Start the application to label all images in `IMAGE FOLDER`:
+        python -m collectmeteranalog --labeling="<ABSOLUTE PATH TO IMAGE FOLDER>"
 
-##### Windows, MacOS, Linux
+    2. Start the application to only label images in `IMAGE FOLDER` which are listed in provided label csv file:
+        python -m collectmeteranalog --labeling="<ABSOLUTE PATH TO IMAGE FOLDER>" --labelfile="<ABSOLUTE PATH TO LABEL FILE>"
 
-The executables are console applications. You must unzip the download and can use it like python from console:
+If images shall be evaluated by an given tensorflow model to show a the predicted value (default: --model=off --> No prediction by model)
 
-    Windows:    collectmeteranalog.exe --collect=<your-esp32name> --days=3
-,
+    3.   
+        python -m collectmeteranalog --labeling="<ABSOLUTE PATH TO IMAGE FOLDER>" --model="<ABSOLUE PATH TO MODEL FILE>
+        python -m collectmeteranalog --labeling="<ABSOLUTE PATH TO IMAGE FOLDER>" --labelfile="<ABSOLUTE PATH TO LABEL FILE>" --model="<ABSOLUE PATH TO MODEL FILE>
 
-    Linux:      collectmeteranalog --collect=<your-esp32name> --days=3
-or
-
-    Macos:      collectmeteranalog --collect=<your-esp32name> --days=3
-
-The startup is on all targets realy slow. 
-Windows and MacOS excecutables have no prediction, because the tflite-runtime is only available for linux and 
-the complete tensorflow library is to big (600MB) for a single application.
- 
-
-### Label the images
-
-Now you can label the images. After reading the images it opens a window.
-
-You can see the counter and have to readjust the label.
 
 There are multiple ways to update the label:
     - Press the `+1.0`, `+0.1`, `-1.0` or `-0.1` buttons on the right lower side.
@@ -95,53 +115,65 @@ We want label like a human would be read the pointer.
 
 If it is correctly, you can click on update. If not use the slider to adjust it.
 
-The prediction on the left side can help you to identify the number. But beware the model can be only a help for you. **Don't trust the recognition!**
+The prediction on the left side can help you to identify the number. But be aware the model can be only a help for you. **Don't trust the recognition!**
 
 <img src="images/Labeling3.png" width="600">
 
-After all images are labeled, the window closes automaticly.
+After all images are labeled, the window closes automatically.
 
-### More Options
+### Syntax of label file (Parameter: --labelfile)
+The label file is mainly used to optimize existing labels. Usually it is generated out of an model traning process. It lists only images which e.g. have a bad prediction.
 
-If the GUI is slow, you can switch off the prediction of the internal neuronal model
+Supported syntax: 
+```bash
+# Modern syntax (header names + additional infos) --> Predicted value is displayed during label process (no external model selected)
+Header:     Index,File,Predicted,Expected,Deviation
+Data rows:  0,1.3_1fe175f541247c9266791695b0689d43.jpg,2.2,1.3,0.9
+            1,4.7_1ea28f634a44dbe1b67cce91d96b08c2.jpg,3.9,4.7,0.8
+            2, ...
 
-    python3 -m collectmeteranalog --collect=<IP-ADDRESS> --days=3 --model=off
+# Legacy syntax (no header names, only index and filename column)
+Header:     ,0
+Data rows:  0,/data_raw_images/1.3_1fe175f541247c9266791695b0689d43.jpg
+            1,/data_raw_images/4.7_1ea28f634a44dbe1b67cce91d96b08c2.jpg
+            2, ...
+```
 
-Sometimes the Labels on the ticks are to tight. You can change the ticks with
+## Options / Parameters
 
-    python3 -m collectmeteranalog --collect=<your-esp32name> --days=3 --ticksteps=2
+List all available options
 
-If you only want label images you can type:
+    python -m collectmeteranalog
 
-    python3 -m collectmeteranalog --labeling=\<path_to_your_images\>
+Prediction functionality for the image labeling part can be switched off
 
-alternativly a list of files as cvs (index-column is used)
+    python -m collectmeteranalog --collect=<METER IP OR NAME> --model=off
+    python -m collectmeteranalog --labeling="<PATH>" --model=off
 
-    python3 -m collectmeteranalog --labelfile=\<path_to_your_file\>.csv
+Sometimes the labels on the ticks are to tight. You can change the ticks with
 
-or if you want remove similar images. The images must be stored in data/raw_images
+    python -m collectmeteranalog --collect=<METER IP OR NAME> --ticksteps=2
+    python -m collectmeteranalog --labeling="<PATH>" --ticksteps=2
 
-    python3 -m collectmeteranalog --collect=<ip or servername> --nodownload
+To remove similar images: The images must be stored in `data/raw_images`
+
+    python -m collectmeteranalog --collect=<METER IP OR NAME> --nodownload
 
 You can keep the downloaded images with option --keepdownloads
 
-    python3 -m collectmeteranalog --collect=<ip or servername> --keepdownloads
+    python -m collectmeteranalog --collect=<METER IP OR NAME> --keepdownloads
 
 If the labeling takes to long, you can later restart at a given number
 
-    python3 -m collectmeteranalog --collect=<ip or servername> --nodownload --startlabel <number>
-
-If another model should be used for prediction (ana-con, ana-class100)
-
-    python3 -m collectmeteranalog --collect=<ip or servername> --model=<modelpath.tflite>
+    python -m collectmeteranalog --collect=<METER IP OR NAME> --nodownload --startlabel <NUMBER>
 
 Sometimes it's usefull to change the similiar image recognition. The parameter is default 2. Smaller values for less 
 similiars, higher values if you have to much similiars.
 
-    python3 -m collectmeteranalog --collect=<ip or servername> --similiarbits=1
+    python -m collectmeteranalog --collect=<METER IP OR NAME> --similiarbits=1
 
 
-### Ready to share
+## Ready to share
 
 After labeling you find the images under **"data/labeled"**.
 
