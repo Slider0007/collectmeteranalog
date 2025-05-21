@@ -10,18 +10,18 @@ from collectmeteranalog.predict import load_interpreter
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--collect', help='Collect images from AI-on-the-Edge-Device. Define name or IP address (e.g. http://IP-ADDRESS)')
+    parser.add_argument('--collect', help='Collect images from AI-on-the-Edge-Device. Define IP address or name of meter.')
     parser.add_argument('--days', type=int, default=3, help='Define in days how many images shall be collected. (default: 3)')
     parser.add_argument('--keepdownloads', action='store_true', help='Normally all collected images will be deleted. If defined the images are kept.')
     parser.add_argument('--nodownload', action='store_true', help='Do not collect any images. Only remove duplicates and labeling.')
-    parser.add_argument('--startlabel', type=float, default=0.0, help='Process only images >= startlabel. (default: 0.0 --> all)')
+    parser.add_argument('--startlabel', type=float, default=0.0, help='Process only images >= startlabel. (default: 0.0)')
     parser.add_argument('--saveduplicates', action='store_true', help='Save the duplicates in an intermediate subdirectory in raw_images.')
-    parser.add_argument('--ticksteps',type=int, default=1, help='How many label ticks are shown (1 = 0.1 steps, 2 = 0.2 steps, ... | max = 5)')
-    parser.add_argument('--similiarbits', type=int, default=2, help='How many pixels must be different if an image is not similiar to others')
+    parser.add_argument('--ticksteps',type=int, default=1, help='How many label ticks are shown (default: 1, max. 5) | 1=0.1 .. 5=0.5 steps)')
+    parser.add_argument('--similiarbits', type=int, default=2, help='How many pixels must be different if an image is not similiar to others. (default = 2)')
     parser.add_argument('--labeling', default=None, help='Path to image folder containing images which shall be labeled.')
     parser.add_argument('--labelfile', default=None, help='Path to a CSV file containing an indexed list of images which shall be labeled.')
-    parser.add_argument('--model', default='off', help='Path to model file if an external model should be used (default: off --> No model)')
-    parser.add_argument('--version', action='store_true', help='Show application version')
+    parser.add_argument('--model', default='off', help='Path to model file if an external model should be used (default: off)')
+    parser.add_argument('--version', action='store_true', help='Print application version')
 
 
     # print help message if no argument is given
