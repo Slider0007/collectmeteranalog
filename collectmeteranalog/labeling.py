@@ -134,7 +134,7 @@ def label(path, startlabel=0.0, labelfile_path=None, ticksteps=1):
     ax=plt.gca()
 
     axp = plt.axes([0.05, 0.5, 0.1, 0.2])
-    predbox = TextBox(axp, label='', initial='Pred.:\n{:.1f}'.format(prediction), textalignment='center')
+    predbox = TextBox(axp, label='', initial='Predicted:\n{:.1f}'.format(prediction), textalignment='center')
     
     axlabel =  plt.axes([0.22, 0.025, 0.58, 0.03])
     slabel = Slider(axlabel, label='Label',valmin= 0.0, valmax=9.9, valstep=0.1, 
@@ -164,22 +164,37 @@ def label(path, startlabel=0.0, labelfile_path=None, ticksteps=1):
     toggle_grid_label = plt.axes([0.87, 0.95, 0.1, 0.04])
     toggle_grid_btn = Button(toggle_grid_label, 'grid', hovercolor='0.975')
 
-    def load_previous():
-        global im
+
+    def update_window(img):
         global i
+        global im
         global filelabel
         global filename
         global predbox
 
-        i = (i - 1) % len(files)
         img, filelabel, filename, i = load_image(files, i)
         im.set_data(img)
         plotedValue.set_xdata([0, 2*pi * filelabel / 10])        
         slabel.set_val(filelabel)
         fig = plt.gcf()
         fig.canvas.manager.set_window_title(str(i+1) + ' of ' + str(len(files)) + ' images')
-        predbox.set_val("{:.1f}".format(predict(img)))
         
+        prediction = predict(img)
+        if (prediction == -1 and not pd.isna(labelfile_prediction[i])):
+            prediction = labelfile_prediction[i]
+        
+        predbox.set_val("Predicted:\n{:.1f}".format(prediction)) 
+    
+    
+    def load_previous():
+        global im
+        global i
+        global filelabel
+        global filename
+
+        i = (i - 1) % len(files)
+
+        update_window()
 
 
     def load_next(increaseindex = True):
@@ -187,28 +202,19 @@ def label(path, startlabel=0.0, labelfile_path=None, ticksteps=1):
         global i
         global filelabel
         global filename
-        global predbox
 
         if increaseindex:
             i = (i + 1) % len(files)
         
-        img, filelabel, filename, i = load_image(files, i)
-        im.set_data(img)
-        plotedValue.set_xdata([0, 2*pi * filelabel / 10])        
-        slabel.set_val(filelabel)
-        fig = plt.gcf()
-        fig.canvas.manager.set_window_title(str(i+1) + ' of ' + str(len(files)) + ' images')
-        predbox.set_val("Pred.:\n{:.1f}".format(predict(img)))
-        
-        updatePlot()
+        update_window()
         
 
     def updatePlot():   
-        
         plotedValue.set_xdata([0, 2*pi * filelabel / 10])  
         plt.pause(0.1)
         #fig.canvas.draw()
         #fig.canvas.flush_events()
+
 
     def increase0_1_label(event):
         global filelabel
@@ -224,6 +230,7 @@ def label(path, startlabel=0.0, labelfile_path=None, ticksteps=1):
         slabel.set_val(filelabel)
         updatePlot()
 
+
     def decrease0_1_label(event):
         global filelabel
 
@@ -231,12 +238,14 @@ def label(path, startlabel=0.0, labelfile_path=None, ticksteps=1):
         slabel.set_val(filelabel)
         updatePlot()
 
+
     def decrease1_label(event):
         global filelabel
 
         filelabel = (filelabel - 1) % 10
         slabel.set_val(filelabel)
         updatePlot()
+
 
     def remove(event):
         global filename
@@ -246,8 +255,10 @@ def label(path, startlabel=0.0, labelfile_path=None, ticksteps=1):
         files = np.delete(files,i, 0)
         load_next(False)
 
+
     def previous(event):
         load_previous()
+
 
     def l_next(event):
         global filelabel
@@ -260,6 +271,7 @@ def label(path, startlabel=0.0, labelfile_path=None, ticksteps=1):
             files[i] = _zw
             shutil.move(filename, _zw)
         load_next()
+
 
     def on_press(event):
         #print('press', event.key)
@@ -281,7 +293,6 @@ def label(path, startlabel=0.0, labelfile_path=None, ticksteps=1):
             remove(event)
 
 
-
     def on_click(event):  
         global slabel      
         global filelabel
@@ -295,6 +306,7 @@ def label(path, startlabel=0.0, labelfile_path=None, ticksteps=1):
         slabel.set_val(filelabel) # event.xdata is directly in rad
         updatePlot()
         #print(event.xdata, slabel.val)
+
 
     def on_toggle_grid(event):  
         global ax2
@@ -349,7 +361,6 @@ def label(path, startlabel=0.0, labelfile_path=None, ticksteps=1):
     plt.show()
 
 
-
 def load_image(files, i, startlabel = -1):
 
     while True:
@@ -372,4 +383,3 @@ def load_image(files, i, startlabel = -1):
     filename = files[i]
     test_image = Image.open(filename)
     return test_image, category, filename, i
-    

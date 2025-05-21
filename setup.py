@@ -51,7 +51,5 @@ setup(
         'Operating System :: OS Independent',
         'Topic :: Software Development :: Libraries :: Application Frameworks',
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
-        ],
-    package_data={'collectmeteranalog': ['models/*.tflite']},
-
+        ]
     )
