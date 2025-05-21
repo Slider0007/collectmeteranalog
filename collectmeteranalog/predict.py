@@ -15,30 +15,34 @@ import pkg_resources
 import math
 from collectmeteranalog import glob
 
-
+global interpreter
 interpreter=None
-internal_model_path = pkg_resources.resource_filename('collectmeteranalog', 'models/ana-class100_0157_s1_q.tflite')
 
 def load_interpreter(model_path):
-    global interpreter
-    print("Use model: " + model_path)
     if (glob.model_path=="off"):
-        print("model is off")
+        print("Prediction disabled: No model selected")
         return -1
-    interpreter = tflite.Interpreter(model_path=model_path)
-    return interpreter
+    
+    if (has_tflite_runtime == False):
+        print("Prediction disabled: No tflite interpreter installed")
+        return -1
+    
+    print("Selected model: " + model_path)
+    return tflite.Interpreter(model_path=model_path)
+
 
 def predict(image):
     global interpreter
 
-    if (glob.model_path=="off" or has_tflite_runtime==False):
-        print("model is off")
+    if (glob.model_path == "off" or has_tflite_runtime == False):
+        #print("Prediction disabled")
         return -1
 
-    if interpreter==None:
-        if glob.model_path==None:
-            glob.model_path=internal_model_path
-        load_interpreter(glob.model_path)
+    if interpreter == None:
+        interpreter = load_interpreter(glob.model_path)
+
+    if interpreter == -1:
+        return -1
 
     interpreter.allocate_tensors()
     input_index = interpreter.get_input_details()[0]["index"]
@@ -91,8 +95,4 @@ def predict(image):
             prediction = (np.argmax(output, axis=1).reshape(-1)/10)[0]
     
     return prediction
-
-    
-
-        
-    
+ 

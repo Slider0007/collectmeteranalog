@@ -23,7 +23,7 @@ def ziffer_data_files(input_dir):
     return  imgfiles
 
 
-def label(path, startlabel=0, imageurlsfile=None, ticksteps=1):
+def label(path, startlabel=0.0, labelfile_path=None, ticksteps=1):
     global filename
     global i
     global im
@@ -36,24 +36,59 @@ def label(path, startlabel=0, imageurlsfile=None, ticksteps=1):
     global plotedValue
     global usegrid 
     global ticksteps_s
+    global labelfile_prediction
 
     ticksteps_s = ticksteps
     usegrid = True
+    labelfile_prediction = [None]
 
-    print(f"Startlabel", startlabel)
+    if labelfile_path is not None:
+        try:
+            print(f"Loading image file list | labelfile: {labelfile_path}")
 
-    if (imageurlsfile!=None):
-        files = pd.read_csv(imageurlsfile, index_col=0).to_numpy().reshape(-1)
-        for file in files:
-            if (not os.path.exists(file)):
-              files = files[~np.isin(files, file)]
-    else: 
+
+            # Load CSV file (only required columns)
+            files_df = pd.read_csv(labelfile_path, index_col="Index", usecols=["Index", "File", "Predicted"])
+
+            # Load image filename (without path) and add labeling path
+            files = np.array([os.path.join(path, f) for f in files_df["File"]])
+
+            # Load prediction from labelfile if column is available
+            if "Predicted" in files_df.columns:
+                labelfile_prediction = files_df["Predicted"].to_numpy().reshape(-1)
+            else:
+                labelfile_prediction = [None] * len(files_df)
+
+            print(f"Loading images from path: {os.path.dirname(files[0])}")
+
+            # List only files which are physically present
+            files = np.array([f for f in files if os.path.exists(f)])
+
+        except Exception as e:
+            print(f"Columns 'Index, File, Predicted' in labelfile not found. Try loading labelfile in legacy format...")
+
+            try:
+                raw_files = pd.read_csv(labelfile_path, index_col=0).to_numpy().reshape(-1)
+
+                print(f"Loading images from path: {os.path.join(path, os.path.dirname(raw_files[0]))}")
+                files = np.array([os.path.join(path, f) for f in raw_files if os.path.exists(os.path.join(path, f))])
+
+                labelfile_prediction = [None] * len(files)
+            
+            except Exception as legacy_e:
+                print(f"Legacy loading failed: {legacy_e}")
+                raise SystemExit("Failed to load labelfile in any supported format.")
+    else:
+        print(f"Loading images from path: {path}")
         files = ziffer_data_files(path)
 
+
     if (len(files)==0):
-        print("No images found in path")
+        print("No images found in defined path")
         exit(1)
-        
+
+
+    print(f"Startlabel:", startlabel)
     i = 0
     img, filelabel, filename, i = load_image(files, i, startlabel)
 
@@ -92,6 +127,9 @@ def label(path, startlabel=0, imageurlsfile=None, ticksteps=1):
     #ax2.spines['polar'].set_visible(False)
     #plt.text(1.1, 0.9, "You can use cursor key controll also:\n\nleft/right = prev/next\nup/down=in/decrease value\ndelete=remove.", fontsize=6)
     prediction = predict(img)
+    if (prediction == -1 and labelfile_prediction[i] != None):
+        prediction = labelfile_prediction[i]
+
     ax=plt.gca()
 
     axp = plt.axes([0.05, 0.5, 0.1, 0.2])
