@@ -1,10 +1,12 @@
 try:
     import tflite_runtime.interpreter as tflite
+    print("No tflite_runtime")
     has_tflite_runtime = True
 except ImportError:
         
     try:
         import tensorflow.lite as tflite
+        print("No tensorflow.lite")
         has_tflite_runtime = True
     except ImportError:
         has_tflite_runtime = False
