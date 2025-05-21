@@ -127,19 +127,20 @@ def label(path, startlabel=0.0, labelfile_path=None, ticksteps=1):
     ax2.set_yticklabels([])
     #ax2.spines['polar'].set_visible(False)
     #plt.text(1.1, 0.9, "You can use cursor key controll also:\n\nleft/right = prev/next\nup/down=in/decrease value\ndelete=remove.", fontsize=6)
-    prediction = predict(img)
-    if (prediction == -1 and not pd.isna(labelfile_prediction[i])):
-        prediction = labelfile_prediction[i]
-
     ax=plt.gca()
 
-    axp = plt.axes([0.05, 0.5, 0.1, 0.2])
-    predbox = TextBox(axp, label='', initial='Predicted:\n{:.1f}'.format(prediction), textalignment='center')
-    
     axlabel =  plt.axes([0.22, 0.025, 0.58, 0.03])
     slabel = Slider(axlabel, label='Label',valmin= 0.0, valmax=9.9, valstep=0.1, 
                     valinit=filelabel,
                     orientation='horizontal')
+    
+    # Show prediction value in plot
+    prediction = predict(img)
+    if (prediction == -1 and not pd.isna(labelfile_prediction[i])):
+        prediction = labelfile_prediction[i]
+    
+    axp = plt.axes([0.05, 0.5, 0.1, 0.2])
+    predbox = TextBox(axp, label='', initial='Predicted:\n{:.1f}'.format(prediction), textalignment='center')
     
     # Show value in plot
     plotedValue, = ax2.plot([0, 2*pi * filelabel / 10], [0, 2], 'g', linewidth=5)    
@@ -165,7 +166,7 @@ def label(path, startlabel=0.0, labelfile_path=None, ticksteps=1):
     toggle_grid_btn = Button(toggle_grid_label, 'grid', hovercolor='0.975')
 
 
-    def update_window(img):
+    def update_window():
         global i
         global im
         global filelabel
@@ -187,10 +188,7 @@ def label(path, startlabel=0.0, labelfile_path=None, ticksteps=1):
     
     
     def load_previous():
-        global im
         global i
-        global filelabel
-        global filename
 
         i = (i - 1) % len(files)
 
@@ -198,10 +196,7 @@ def label(path, startlabel=0.0, labelfile_path=None, ticksteps=1):
 
 
     def load_next(increaseindex = True):
-        global im
         global i
-        global filelabel
-        global filename
 
         if increaseindex:
             i = (i + 1) % len(files)
