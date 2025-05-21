@@ -65,7 +65,7 @@ jobs:
         id: get_version
         shell: bash
         run: |
-          version=$(grep -Po "(?<=__version__\s*=\s*['\"])[^'\"]+" collectmeteranalog/__version__.py || echo "0.0.0")
+          version=$(sed -n "s/^__version__ *= *['\"]\([^'\"]*\)['\"].*/\1/p" collectmeteranalog/__version__.py || echo "0.0.0")
           echo "VERSION=v$version" >> $GITHUB_ENV
 
       - name: Pre-Build for ${{ matrix.os }}
