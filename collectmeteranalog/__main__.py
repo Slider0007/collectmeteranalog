@@ -21,6 +21,8 @@ def main():
     parser.add_argument('--labeling', default=None, help='Path to image folder containing images which shall be labeled.')
     parser.add_argument('--labelfile', default=None, help='Path to a CSV file containing an indexed list of images which shall be labeled.')
     parser.add_argument('--model', default='off', help='Path to model file if an external model should be used (default: off --> No model)')
+    parser.add_argument('--version', action='store_true', help='Show application version')
+
 
     # print help message if no argument is given
     if len(sys.argv) == 1:
@@ -28,6 +30,11 @@ def main():
         sys.exit(1)
     
     args = parser.parse_args()
+
+    if args.version:
+        from collectmeteranalog.__version__ import __version__
+        print(f"{__version__}")
+        sys.exit(0)
 
     if (args.ticksteps < 1 or args.ticksteps > 5):
         args.ticksteps = 1
