@@ -29,9 +29,14 @@ def yesterday(daysbefore=1):
 
 def readimages(servername, output_dir, daysback=15):
     '''get all images taken yesterday and store it in target path'''
-    serverurl = "http://" + servername
+    
+    if not servername.startswith("http://"):
+        serverurl = "http://" + servername
+    else:
+        serverurl = servername
+
     count = 0
-    print(f"Loading data from {servername} ...")
+    print(f"Loading data from {serverurl} ...")
     for datesbefore in range(0, daysback):
         picturedate = yesterday(daysbefore=datesbefore)
         # only if not exists already
@@ -196,7 +201,7 @@ def remove_similar_images(image_filenames, meter, similarbits=2,  hashfunc = ima
 
 
 def move_to_label(files, meter):
-    print("Move to label")
+    print("Move files to label folder")
     os.makedirs(target_label_path, exist_ok=True)
     for file in files:
         os.replace(file, os.path.join(target_label_path, os.path.basename(file)))
@@ -211,7 +216,7 @@ def collect(meter, days, keepolddata=False, download=True, startlabel=0, savedup
 
     # read all images from meters
     if download:
-        print("retrieve images")
+        print("Retrieve images")
         readimages(meter, target_raw_path, days)
     
     # remove all same or similar images and remove the empty folders

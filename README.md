@@ -1,4 +1,4 @@
-# Analog Pointer Image Collection And Labeling Application
+# Image Collection And Labeling App For Analog Pointer
 
 Help us to get more image data and improve the analog pointer predictions of your meter device!
 
@@ -87,16 +87,16 @@ Either labeling process is started automatically and opens the label window afte
 or application can be started manually just for image labeling.
 
     1. Start the application to label all images in `IMAGE FOLDER`:
-        python -m collectmeteranalog --labeling="<ABSOLUTE PATH TO IMAGE FOLDER>"
+        python -m collectmeteranalog --labeling="<PATH TO IMAGE FOLDER>"
 
     2. Start the application to only label images in `IMAGE FOLDER` which are listed in provided label csv file:
-        python -m collectmeteranalog --labeling="<ABSOLUTE PATH TO IMAGE FOLDER>" --labelfile="<ABSOLUTE PATH TO LABEL FILE>"
+        python -m collectmeteranalog --labeling="<PATH TO IMAGE FOLDER>" --labelfile="<PATH TO LABEL FILE>"
 
 If images shall be evaluated by an given tensorflow model to show a the predicted value (default: --model=off --> No prediction by model)
 
     3.   
-        python -m collectmeteranalog --labeling="<ABSOLUTE PATH TO IMAGE FOLDER>" --model="<ABSOLUE PATH TO MODEL FILE>
-        python -m collectmeteranalog --labeling="<ABSOLUTE PATH TO IMAGE FOLDER>" --labelfile="<ABSOLUTE PATH TO LABEL FILE>" --model="<ABSOLUE PATH TO MODEL FILE>
+        python -m collectmeteranalog --labeling="<PATH TO IMAGE FOLDER>" --model="<PATH TO MODEL FILE>
+        python -m collectmeteranalog --labeling="<PATH TO IMAGE FOLDER>" --labelfile="<PATH TO LABEL FILE>" --model="<PATH TO MODEL FILE>
 
 
 There are multiple ways to update the label:
