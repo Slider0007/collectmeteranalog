@@ -84,7 +84,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          path: './dist/collectmeteranalog-${{ matrix.OS_NAME }}-${{ env.VERSION }}.zip'
+          path: './dist/*'
           name: 'collectmeteranalog-${{ matrix.OS_NAME }}-${{ env.VERSION }}'
 
       - name: Release
