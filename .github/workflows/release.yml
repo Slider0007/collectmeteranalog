@@ -40,6 +40,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Cache pip
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -55,7 +63,7 @@ jobs:
         id: get_version
         shell: bash
         run: |
-          version=$(python -c "import collectmeteranalog.__version__ as v; print(v.__version__)") || version="0.0.0"
+          version=$(python -W ignore -c "import sys; import collectmeteranalog.__version__ as v; sys.stdout.write(v.__version__)" 2>/dev/null) || version="0.0.0"
           echo "VERSION=v$version" >> $GITHUB_ENV
 
       - name: Pre-Build for ${{ matrix.os }}
