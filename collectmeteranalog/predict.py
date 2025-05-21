@@ -2,13 +2,11 @@ try:
     import tflite_runtime.interpreter as tflite
     has_tflite_runtime = True
 except ImportError:
-    print("No tflite_runtime")
         
     try:
         import tensorflow.lite as tflite
         has_tflite_runtime = True
     except ImportError:
-        print("No tensorflow.lite")
         has_tflite_runtime = False
 import numpy as np
 import pkg_resources
