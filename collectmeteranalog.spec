@@ -8,7 +8,6 @@ a = Analysis(
     ['run.py'],
     pathex=[],
     binaries=[],
-    datas=[('collectmeteranalog/models/*.tflite', 'collectmeteranalog/models')],
     hiddenimports=['requests'],
     hookspath=[],
     runtime_hooks=[],
