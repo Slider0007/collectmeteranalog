@@ -44,13 +44,13 @@ jobs:
         id: get_version
         run: |
           version=$(python << EOF
-            try:
-                import collectmeteranalog.__version__ as v
-                print(v.__version__)
-            except Exception:
-                print('0.0.0')
-          EOF
-          )
+      try:
+          import collectmeteranalog.__version__ as v
+          print(v.__version__)
+      except Exception:
+          print('0.0.0')
+      EOF
+      )
           echo "VERSION=v$version" >> $GITHUB_ENV
 
       - name: Setup Python
