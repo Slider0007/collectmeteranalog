@@ -13,13 +13,21 @@ except ImportError:
 import numpy as np
 import pkg_resources
 import math
-from collectmeteranalog import glob
 
+global model_path
 global interpreter
+
+model_path=None
 interpreter=None
 
-def load_interpreter(model_path):
-    if (glob.model_path=="off"):
+
+def load_interpreter(path):
+    global interpreter
+    global model_path
+
+    model_path = path
+
+    if (model_path==None or model_path=="off"):
         print("Prediction disabled: No model selected")
         return -1
     
@@ -28,33 +36,23 @@ def load_interpreter(model_path):
         return -1
     
     print("Selected model: " + model_path)
-    return tflite.Interpreter(model_path=model_path)
+    interpreter = tflite.Interpreter(model_path=model_path)
+    interpreter.allocate_tensors()
 
 
 def predict(image):
-    global interpreter
-
-    if (glob.model_path == "off" or has_tflite_runtime == False):
+    if (model_path == None or model_path == "off" or has_tflite_runtime == False or interpreter == None):
         #print("Prediction disabled")
         return -1
-
-    if interpreter == None:
-        interpreter = load_interpreter(glob.model_path)
-
-    if interpreter == -1:
-        return -1
-
-    interpreter.allocate_tensors()
+    
     input_index = interpreter.get_input_details()[0]["index"]
     input_shape = interpreter.get_input_details()[0]["shape"]
-    
     output_index = interpreter.get_output_details()[0]["index"]
 
     image = image.resize((input_shape[2], input_shape[1]))
-    
+
     interpreter.set_tensor(input_index, np.expand_dims(np.array(image).astype(np.float32), axis=0))
-    # Run inference.
-    interpreter.invoke()
+    interpreter.invoke() # Run inference.
     output = interpreter.get_tensor(output_index)
     
     print("Model=" + str(len(output[0])))

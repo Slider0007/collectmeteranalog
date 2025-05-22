@@ -14,11 +14,10 @@ import time
 import numpy as np
 
 
-
-target_path = "data"                   # root data path
 target_raw_path =  "data/raw_images"   # here all raw images will be stored
 target_label_path = "data/labeled"
 target_store_duplicates = "data/raw_images/duplicates"
+target_hash_data = "data/HistoricHashData.txt"
 
 
 def yesterday(daysbefore=1):
@@ -76,7 +75,6 @@ def readimages(servername, output_dir, daysback=15):
                             try:
                                 print(serverurl+url)
                                 image = requests.get(serverurl+url, stream=True)
-                                count = count + 1
                                 countrepeat = 0
                             except ConnectionError as h:
                                 print( path + "/" + prefix + filename + " could not be loaded - Retry in 10 s ... " + str(countrepeat))
@@ -92,10 +90,10 @@ def readimages(servername, output_dir, daysback=15):
                             try:
                                 img = Image.open(image.raw)
                                 img.save(path + "/" + prefix + filename)
+                                count += 1
                             except Exception as e:
                                 print( path + "/" + prefix + filename + " could not be opened as an image: %r!" % e)
 
-                            count = count + 1
                             countrepeat = 0
 
 
@@ -136,7 +134,8 @@ def ziffer_data_files(input_dir):
                 imgfiles.append(root + "/" + file)
     return  imgfiles
 
-def remove_similar_images(image_filenames, meter, similarbits=2,  hashfunc = imagehash.average_hash, saveduplicates=False):
+
+def remove_similar_images(path, image_filenames, meter, similarbits=2,  hashfunc = imagehash.average_hash, saveduplicates=False):
     '''removes similar images.
 
     '''
@@ -154,8 +153,8 @@ def remove_similar_images(image_filenames, meter, similarbits=2,  hashfunc = ima
             continue
         images.append([hash, img, meter, datum])
   
-    if (os.path.exists('data/HistoricHashData.txt')):
-        HistoricHashData = load_hash_file('data/HistoricHashData.txt')
+    if (os.path.exists(os.path.join(path, target_hash_data))):
+        HistoricHashData = load_hash_file(os.path.join(path, target_hash_data))
     else:
         HistoricHashData = []
 
@@ -182,16 +181,16 @@ def remove_similar_images(image_filenames, meter, similarbits=2,  hashfunc = ima
     for _image in images:
         if not _image[1] in duplicates:
             HistoricHashData.append(_image)
-    save_hash_file(HistoricHashData, 'data/HistoricHashData.txt')
+    save_hash_file(HistoricHashData, os.path.join(path, target_hash_data))
             
     # remove now all duplicates
     if saveduplicates:
-        os.makedirs(target_store_duplicates, exist_ok=True)
+        os.makedirs(os.path.join(path, target_store_duplicates), exist_ok=True)
         count = 0
         for image in duplicates:
             count = count + 1
-            os.replace(image, os.path.join(target_store_duplicates, os.path.basename(image)))
-        print(f"{count} duplicates will moved to .data/raw_images/duplicates.")
+            os.replace(image, os.path.join(os.path.join(path, target_store_duplicates), os.path.basename(image)))
+        print(f"{count} duplicates will moved to .../raw_images/duplicates.")
     else:
         count = 0
         for image in duplicates:
@@ -200,36 +199,35 @@ def remove_similar_images(image_filenames, meter, similarbits=2,  hashfunc = ima
         print(f"{count} duplicates will be removed.")
 
 
-def move_to_label(files, meter):
+def move_to_label(path, files):
     print("Move files to label folder")
-    os.makedirs(target_label_path, exist_ok=True)
+    os.makedirs(os.path.join(path, target_label_path), exist_ok=True)
     for file in files:
-        os.replace(file, os.path.join(target_label_path, os.path.basename(file)))
-
-       
+        os.replace(file, os.path.join(os.path.join(path, target_label_path), os.path.basename(file)))
 
 
-def collect(meter, days, keepolddata=False, download=True, startlabel=0, saveduplicates=False, ticksteps=1, similarbits=2):
+def collect(meter, path, days, keepolddata=False, download=True, startlabel=0, saveduplicates=False, ticksteps=1, similarbits=2):
     # ensure the target path exists
-    os.makedirs(target_raw_path, exist_ok=True)
+    os.makedirs(os.path.join(path, target_raw_path), exist_ok=True)
     print("Startlabel", startlabel)
 
     # read all images from meters
     if download:
         print("Retrieve images")
-        readimages(meter, target_raw_path, days)
+        readimages(meter, os.path.join(path, target_raw_path), days)
     
     # remove all same or similar images and remove the empty folders
-    remove_similar_images(ziffer_data_files(os.path.join(target_raw_path, meter)), meter, saveduplicates=saveduplicates, similarbits=similarbits)
+    remove_similar_images(path, ziffer_data_files(os.path.join(os.path.join(path, target_raw_path), meter)), 
+                          meter, saveduplicates=saveduplicates, similarbits=similarbits)
 
     # move the files in one zip without directory structure
-    move_to_label(ziffer_data_files(os.path.join(target_raw_path, meter)), meter)
+    move_to_label(path, ziffer_data_files(os.path.join(os.path.join(path, target_raw_path), meter)))
 
     # cleanup
     if not keepolddata:
-        shutil.rmtree(target_raw_path)
+        shutil.rmtree(os.path.join(path, target_raw_path))
 
     # label now
-    label(target_label_path, startlabel=startlabel, ticksteps=ticksteps)
+    label(os.path.join(path, target_label_path), startlabel=startlabel, ticksteps=ticksteps)
 
 
