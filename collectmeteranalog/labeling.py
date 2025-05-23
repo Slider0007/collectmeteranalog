@@ -34,7 +34,7 @@ def label(path, startlabel=0.0, labelfile_path=None, ticksteps=1):
     global ax2
     global slabel
     global files
-    global predbox
+    global pred_label
     global plotedValue
     global usegrid 
     global ticksteps_s
@@ -42,7 +42,7 @@ def label(path, startlabel=0.0, labelfile_path=None, ticksteps=1):
 
     ticksteps_s = ticksteps
     usegrid = True
-    labelfile_prediction = [None]
+    labelfile_prediction = None
 
     if labelfile_path is not None:
         try:
@@ -142,7 +142,8 @@ def label(path, startlabel=0.0, labelfile_path=None, ticksteps=1):
                           backgroundcolor='lightgray', bbox=dict(facecolor='#f8f8f8', edgecolor='none'))
 
     prediction = predict(img)
-    if (prediction == -1 and not pd.isna(labelfile_prediction[i])):
+    if (prediction == -1 and labelfile_prediction is not None and isinstance(labelfile_prediction, (list, np.ndarray))
+        and i < len(labelfile_prediction) and labelfile_prediction[i] is not None and not pd.isna(labelfile_prediction[i])):
         prediction = labelfile_prediction[i]
     
     if (prediction != -1):
@@ -177,7 +178,8 @@ def label(path, startlabel=0.0, labelfile_path=None, ticksteps=1):
         global im
         global filelabel
         global filename
-        global predbox
+        global pred_label
+        global labelfile_prediction
 
         img, filelabel, filename, i = load_image(files, i)
         im.set_data(img)
@@ -187,10 +189,12 @@ def label(path, startlabel=0.0, labelfile_path=None, ticksteps=1):
         fig.canvas.manager.set_window_title(f"collectmeteranalog v{__version__}   |   Image: {str(i+1)} / {str(len(files))}")
         
         prediction = predict(img)
-        if (prediction == -1 and not pd.isna(labelfile_prediction[i])):
+        if (prediction == -1 and labelfile_prediction is not None and isinstance(labelfile_prediction, (list, np.ndarray))
+            and i < len(labelfile_prediction) and labelfile_prediction[i] is not None and not pd.isna(labelfile_prediction[i])):
             prediction = labelfile_prediction[i]
         
-        pred_label.set_text("Prediction:\n{:.1f}".format(prediction))
+        if (prediction != -1):
+            pred_label.set_text("Prediction:\n{:.1f}".format(prediction))
     
     
     def load_previous():
