@@ -10,6 +10,7 @@ from matplotlib.widgets import Slider, Button, RadioButtons, TextBox
 import shutil
 import pandas as pd
 from collectmeteranalog.predict import predict
+from collectmeteranalog.__version__ import __version__
 from numpy import pi
 
 def ziffer_data_files(input_dir):
@@ -57,8 +58,10 @@ def label(path, startlabel=0.0, labelfile_path=None, ticksteps=1):
             # Load prediction from labelfile if column is available
             if "Predicted" in files_df.columns:
                 labelfile_prediction = files_df["Predicted"].to_numpy().reshape(-1)
+                print("labelfile: Prediction data available")
             else:
                 labelfile_prediction = [None] * len(files_df)
+                print("labelfile: No prediction data available")
 
             print(f"Loading images from path: {os.path.dirname(files[0])}")
 
@@ -99,7 +102,7 @@ def label(path, startlabel=0.0, labelfile_path=None, ticksteps=1):
     # set window title
     fig = plt.gcf()
     
-    fig.canvas.manager.set_window_title('1 of ' + str(len(files)) + ' images')
+    fig.canvas.manager.set_window_title(f"collectmeteranalog v{__version__}   |   Image: 1 / {str(len(files))}")
     ax0 = fig.add_subplot(111)
     ax0.axis("off")
 
@@ -135,35 +138,38 @@ def label(path, startlabel=0.0, labelfile_path=None, ticksteps=1):
                     orientation='horizontal')
     
     # Show prediction value in plot
+    pred_label = fig.text(-0.22, 0.5, 'Prediction\ndisabled', transform=ax0.transAxes, ha='center', va='center', 
+                          backgroundcolor='lightgray', bbox=dict(facecolor='#f8f8f8', edgecolor='none'))
+
     prediction = predict(img)
     if (prediction == -1 and not pd.isna(labelfile_prediction[i])):
         prediction = labelfile_prediction[i]
     
-    axp = plt.axes([0.05, 0.5, 0.1, 0.2])
-    predbox = TextBox(axp, label='', initial='Predicted:\n{:.1f}'.format(prediction), textalignment='center')
+    if (prediction != -1):
+        pred_label.set_text("Prediction:\n{:.1f}".format(prediction))
     
     # Show value in plot
     plotedValue, = ax2.plot([0, 2*pi * filelabel / 10], [0, 2], 'g', linewidth=5)    
     
-    previousax = plt.axes([0.87, 0.225, 0.1, 0.04])
-    bprevious = Button(previousax, 'previous', hovercolor='0.975')
-    nextax = plt.axes([0.87, 0.025, 0.1, 0.04])
-    bnext = Button(nextax, 'update', hovercolor='0.975')
-    removeax = plt.axes([0.87, 0.4, 0.1, 0.04])
-    bremove = Button(removeax, 'delete', hovercolor='0.975')
+    previousax = plt.axes([0.87, 0.225, 0.115, 0.05])
+    bprevious = Button(previousax, 'Previous', hovercolor='0.975')
+    nextax = plt.axes([0.87, 0.025, 0.115, 0.05])
+    bnext = Button(nextax, 'Update', hovercolor='0.975')
+    removeax = plt.axes([0.87, 0.4, 0.115, 0.05])
+    bremove = Button(removeax, 'Delete', hovercolor='0.975')
     
-    increase0_1_label = plt.axes([0.93, 0.1, 0.05, 0.04])
+    increase0_1_label = plt.axes([0.93, 0.095, 0.055, 0.05])
     bincrease0_1_label = Button(increase0_1_label, '+0.1', hovercolor='0.975')
-    increase1_label = plt.axes([0.93, 0.15, 0.05, 0.04])
+    increase1_label = plt.axes([0.93, 0.155, 0.055, 0.05])
     bincrease1_label = Button(increase1_label, '+1.0', hovercolor='0.975')
     
-    decrease0_1_label = plt.axes([0.87, 0.1, 0.05, 0.04])
+    decrease0_1_label = plt.axes([0.87, 0.095, 0.055, 0.05])
     bdecrease0_1_label = Button(decrease0_1_label, '-0.1', hovercolor='0.975')
-    decrease1_label = plt.axes([0.87, 0.15, 0.05, 0.04])
+    decrease1_label = plt.axes([0.87, 0.155, 0.055, 0.05])
     bdecrease1_label = Button(decrease1_label, '-1.0', hovercolor='0.975')
 
-    toggle_grid_label = plt.axes([0.87, 0.95, 0.1, 0.04])
-    toggle_grid_btn = Button(toggle_grid_label, 'grid', hovercolor='0.975')
+    toggle_grid_label = plt.axes([0.87, 0.95, 0.115, 0.05])
+    toggle_grid_btn = Button(toggle_grid_label, 'Grid', hovercolor='0.975')
 
 
     def update_window():
@@ -178,13 +184,13 @@ def label(path, startlabel=0.0, labelfile_path=None, ticksteps=1):
         plotedValue.set_xdata([0, 2*pi * filelabel / 10])        
         slabel.set_val(filelabel)
         fig = plt.gcf()
-        fig.canvas.manager.set_window_title(str(i+1) + ' of ' + str(len(files)) + ' images')
+        fig.canvas.manager.set_window_title(f"collectmeteranalog v{__version__}   |   Image: {str(i+1)} / {str(len(files))}")
         
         prediction = predict(img)
         if (prediction == -1 and not pd.isna(labelfile_prediction[i])):
             prediction = labelfile_prediction[i]
         
-        predbox.set_val("Predicted:\n{:.1f}".format(prediction)) 
+        pred_label.set_text("Prediction:\n{:.1f}".format(prediction))
     
     
     def load_previous():
