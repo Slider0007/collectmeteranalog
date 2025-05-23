@@ -1,180 +1,169 @@
-# Image Collection And Labeling App For Analog Pointer
+# Image Collection and Labeling App for Analog Dials
 
-Help us to get more image data and improve the analog pointer predictions of your meter device!
+Help us improve analog dial predictions by collecting and labeling image data from your own meter device!
 
 
 ## Device Preparation
 
-### 1. Configure ROIs (Regions Of Interest) properly
+### 1. Configure ROIs (Regions of Interest)
 
-Before you read out the images, have to properly configure your ROIs. It is essential to have good images to 
-successfully train the neuronal network. Please check 
-[ROI Configuration Documenation](https://github.com/jomjol/AI-on-the-edge-device/wiki/ROI-Configuration).
+Proper ROI configuration is essential for accurate training. Ensure the center of the analog dial is 
+centered within the ROI.
 
-**Note: It is important to have the center of the analog pointer centered of the ROI image.**
+Refer to the [ROI Configuration Documentation](https://github.com/jomjol/AI-on-the-edge-device/wiki/ROI-Configuration).
 
 ### 2. Enable Image Logging
 
-Before you can read the images, you have to configure the logging of the pointers in your device.
-1. Go to you devices and open the configuration.
-<br><img src="images/Menu-Config.png" width="800">
-2. Now setup the *LogfileRetentionsInDays*. You have to select the checkbox if not already configured.
-Please do not change the path of *LogImageLocation* ( /log/analog )
-<br><img src="images/Config-LogImages.png" width="800">
-3. After enabling the image logging, you need wait a few days before you can readout all the images.
+1. Open the device configuration menu.
+   ![Config Menu](images/Menu-Config.png)
+2. Set up `LogfileRetentionsInDays` and enable logging. Do not change `LogImageLocation` (keep as `/log/analog`).
+   ![Logging Config](images/Config-LogImages.png)
+3. Wait a few days to accumulate enough images before reading them out.
 
 
 ## Image Collection
 
 ### Installation
 
-#### Option 1: Precompiled Executables (Windows, MacOS, Linux)
+#### Option 1: Precompiled Executables
 
-The [releases](https://github.com/haverland/collectmeteranalog/releases) contains packages for the  operating systems Windows, Linux and MacOS.
-Download the suitable package, unzip the content and call the console application from command line / terminal:
+Download from [Releases](https://github.com/haverland/collectmeteranalog/releases) for Windows, macOS, or Linux.
 
 ```bash
 # Windows
 collectmeteranalog.exe --collect=<METER IP or NAME>
 
-# Linux
-./collectmeteranalog --collect=<METER IP or NAME>
-
-# macOS
+# Linux/macOS
 ./collectmeteranalog --collect=<METER IP or NAME>
 ```
 
-The application startup is a little bit slow. If everthing is configured properly, it's starting with downloading 
-all images of the last three days (suing default parameter: --days=3) from the meter and save the images into a subfolder 
-called `data`. The image names will be hashed for your privacy. Be patiant, it will takes a while. After the download is 
-completed any duplicates will be automaticly removed. Finally you have a folder named `data/labled` with the pre-processed images.
+The app downloads the last three days (default: --days=3) of images into `data/` (This step takes quite a while, 
+depending on the amount of images to download), hashes the filenames for privacy, removes duplicates, and stores 
+labeled images in `data/labeled`.
 
 #### Option 2: Python Package
 
-1. Install Python from [python.org](https://www.python.org/downloads/) if not already installed. .
-2. Install the package:
-```bash
-    pip install git+https://github.com/haverland/collectmeteranalog
-```
+1. Install [Python](https://www.python.org/downloads/).
+2. Install the app:
+   ```bash
+   pip install git+https://github.com/haverland/collectmeteranalog
+   ```
 3. Collect images:
-```bash
-    python -m collectmeteranalog --collect=<METER IP or NAME>
-```
-The application startup is a little bit slow. If everthing is configured properly, it's starting with downloading 
-all images of the last three days (suing default parameter: --days=3) from the meter and save the images into a subfolder 
-called `data`. The image names will be hashed for your privacy. Be patiant, it will takes a while. After the download is 
-completed any duplicates will be automaticly removed. Finally you have a folder named `data/labled` with the pre-processed images.
+   ```bash
+   python -m collectmeteranalog --collect=<METER IP or NAME>
+   ```
 
-#### Install Prediction Capability For Image Labeling (Optional)
+The app downloads the last three days (default: --days=3) of images into `data/` (This step takes quite a while, 
+depending on the amount of images to download), hashes the filenames for privacy, removes duplicates, and stores 
+labeled images in `data/labeled`.
 
-Windows and MacOS excecutables do not have any prediction functionality pre-installed, because the tflite-runtime is only available for linux and 
-the complete tensorflow library is to large (600MB) for a single file application. This functionality is only used for labeling the images, but
-it will also functional without installation. The predicted value will not be displayed.
+#### Optional: Enable Prediction for Labeling
 
-To install this functionality:
+Windows and macOS excecutables do not have any prediction functionality pre-installed, because the tflite-runtime 
+is only available for linux and the complete tensorflow library is to large (600MB) for a single file application. 
+This functionality is only used while labeling the images, but the labeling process will also work without prediction.
+
+To enable image predictions (for labeling assistance):
+
 ```bash
 # Windows
 pip install tensorflow
 
-# Mac
-pip install tensorflow-macos 
+# macOS
+pip install tensorflow-macos
 ```
+
 
 ## Image Labeling
 
-This application can also be used to properly label the images or adjust existing labels.
-Either labeling process is started automatically and opens the label window after image collection is completed 
-or application can be started manually just for image labeling.
+This application can also be used to properly label the images or adjust existing labels. The labeling process starts 
+automatically after image collection is completed or can be manually triggered:
 
-    1. Start the application to label all images in `IMAGE FOLDER`:
-        python -m collectmeteranalog --labeling="<PATH TO IMAGE FOLDER>"
-
-    2. Start the application to only label images in `IMAGE FOLDER` which are listed in provided label csv file:
-        python -m collectmeteranalog --labeling="<PATH TO IMAGE FOLDER>" --labelfile="<PATH TO LABEL FILE>"
-
-If images shall be evaluated by an given tensorflow model to show a the predicted value (default: --model=off --> No prediction by model)
-
-    3.   
-        python -m collectmeteranalog --labeling="<PATH TO IMAGE FOLDER>" --model="<PATH TO MODEL FILE>
-        python -m collectmeteranalog --labeling="<PATH TO IMAGE FOLDER>" --labelfile="<PATH TO LABEL FILE>" --model="<PATH TO MODEL FILE>
-
-
-There are multiple ways to update the label:
-    - Press the `+1.0`, `+0.1`, `-1.0` or `-0.1` buttons on the right lower side.
-    - Use the `pageup`, `up`, `pagedown` or `down` keys.  
-    - Click onto the pointer on the plot
-
-If you using click option, beware that it set the ticks. But sometimes the ticks are not correct, because the image
-is moved or shared.
-
-<img src="images/ClickonTick.png" width="600">
-
-This pointer is a 1.7. Look at the marks. The 1.5 is under Tick 1.6. So if you click it would label a 1.8. 
-We want label like a human would be read the pointer.
-
-
-If it is correctly, you can click on update. If not use the slider to adjust it.
-
-The prediction on the left side can help you to identify the number. But be aware the model can be only a help for you. **Don't trust the recognition!**
-
-<img src="images/Labeling3.png" width="600">
-
-After all images are labeled, the window closes automatically.
-
-### Syntax of label file (Parameter: --labelfile)
-The label file is mainly used to optimize existing labels. Usually it is generated out of an model traning process. It lists only images which e.g. have a bad prediction.
-
-Supported syntax: 
 ```bash
-# Modern syntax (header names + additional infos) --> Predicted value is displayed during label process (no external model selected)
-Header:     Index,File,Predicted,Expected,Deviation
-Data rows:  0,1.3_1fe175f541247c9266791695b0689d43.jpg,2.2,1.3,0.9
-            1,4.7_1ea28f634a44dbe1b67cce91d96b08c2.jpg,3.9,4.7,0.8
-            2, ...
+# Label all images in a folder
+python -m collectmeteranalog --labeling="<IMAGE FOLDER>"
 
-# Legacy syntax (no header names, only index and filename column)
-Header:     ,0
-Data rows:  0,/data_raw_images/1.3_1fe175f541247c9266791695b0689d43.jpg
-            1,/data_raw_images/4.7_1ea28f634a44dbe1b67cce91d96b08c2.jpg
-            2, ...
+# Label specific images listed in a CSV file
+python -m collectmeteranalog --labeling="<IMAGE FOLDER>" --labelfile="<LABEL FILE>"
 ```
 
-## Options / Parameters
+With prediction model (Optional | Supported model types: `ana-cont` and `ana-class100`):
+```bash
+python -m collectmeteranalog --labeling="<IMAGE FOLDER>" --model="<MODEL FILE>"
+python -m collectmeteranalog --labeling="<IMAGE FOLDER>" --labelfile="<LABEL FILE>" --model="<MODEL FILE>"
+```
 
-List all available options
+### Label File Syntax
 
-    python -m collectmeteranalog
+**Modern Format:**
+```csv
+Index,File,Predicted,Expected,Deviation
+0,1.3_abc.jpg,2.2,1.3,0.9
+1,1.4_def.jpg,2.1,1.4,0.6
+```
 
-Prediction functionality for the image labeling part can be switched off
+**Legacy Format:**
+```csv
+,0
+0,/data_raw_images/1.3_abc.jpg
+1,/data_raw_images/1.4_def.jpg
+```
 
-    python -m collectmeteranalog --collect=<METER IP OR NAME> --model=off
-    python -m collectmeteranalog --labeling="<PATH>" --model=off
+### Labeling Window
 
-Sometimes the labels on the ticks are to tight. You can change the ticks with
+#### Labeling Procedure and Buttons
+- Use `+1.0`, `+0.1`, `-1.0` and `-0.1` buttons
+- Use the `pageup` (+1.0), `up` (+0.1), `pagedown` (-1.0) and `down` (+1.0) keys.
+- Click on the dial in the image plot (ensure tick alignment is correct, because it's saved after click)
+- `Update` or `right` key to save labeled image and continue with next image
+- `Previous` or `left` key to go back to previous image
+- `Delete` to delete actual image (e.g. subpar image quality, misaligned, etc.)
+- `Grid` to enable / disable image tick overlay
 
-    python -m collectmeteranalog --collect=<METER IP OR NAME> --ticksteps=2
-    python -m collectmeteranalog --labeling="<PATH>" --ticksteps=2
+#### Prediction Visualization (If Activated)
+The prediction on the left hand side can help you to identify the number.
+But be ware the model can only be a help for you.
 
-To remove similar images: The images must be stored in `data/raw_images`
+**Note:** Always verify model predictions manually.
 
-    python -m collectmeteranalog --collect=<METER IP OR NAME> --nodownload
+![Labeling Window](images/Labeling3.png)
 
-You can keep the downloaded images with option --keepdownloads
+### Labeling Example With Missaligned Overlay
+Evaluate always like a human would read the dail. This dial is pointing to 1.7. Due to a small 
+missalignment of the image the ticks overlay is not placed properly, e.g. the real 1.7 is overlaying 
+with tick 1.8. If you would label it like displayed, the image will be labeled with 1.8, which is not 
+accurate. Adjust the pointer to tick 1.7, even it's not perfect matches the overlay and "update" label.
 
-    python -m collectmeteranalog --collect=<METER IP OR NAME> --keepdownloads
-
-If the labeling takes to long, you can later restart at a given number
-
-    python -m collectmeteranalog --collect=<METER IP OR NAME> --nodownload --startlabel <NUMBER>
-
-Sometimes it's usefull to change the similiar image recognition. The parameter is default 2. Smaller values for less 
-similiars, higher values if you have to much similiars.
-
-    python -m collectmeteranalog --collect=<METER IP OR NAME> --similiarbits=1
+![Example](images/ClickonTick.png)
 
 
-## Ready to share
+## Options
 
-After labeling you find the images under **"data/labeled"**.
+List all available options:
+```bash
+python -m collectmeteranalog
+```
 
-Zip the folder. If it is smaller than 2MB you can mail it to iotson(at)t-online.de. Else please contact us, to find a other way.
+```bash
+Available options:
+  -h, --help                    Show this help message and exit
+  --collect COLLECT             Collect images from AI-on-the-Edge-Device. Define IP address or name of meter.
+  --collectpath COLLECTPATH     Root path for collected images. (default: application root)
+  --days DAYS                   Defines in days how many images shall be collected. (default: 3)
+  --keepdownloads               Normally all collected images will be deleted. If defined the images are kept.
+  --nodownload                  Do not collect any images. Only remove duplicates and start labeling process.
+  --startlabel STARTLABEL       Process only images >= startlabel. (default: 0.0)
+  --saveduplicates              Save the duplicates in an intermediate subdirectory in raw_images.
+  --ticksteps TICKSTEPS         How many label ticks are shown (default: 1, max. 5 | 1=0.1 .. 5=0.5 steps)
+  --similiarbits SIMILIARBITS   How many pixels must be different if an image is not similiar to others. (default = 2)
+  --labeling LABELING           Path to image folder containing images which shall be labeled.
+  --labelfile LABELFILE         Path to a CSV file containing an indexed list of images which shall be labeled.
+  --model MODEL                 Path to model file to use prediction functionality (default: off)
+  --version                     Print application version
+```
+
+
+## Share Your Data
+
+After labeling, zip the `data/labeled` folder. If it's under 2MB, email it to: **iotson(at)t-online.de**. 
+For larger datasets, please contact us for alternatives.
