@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Repo cleanup
 
 
+
 ## [1.0.8]
 
 - fix failure in labeling with csv-file if multiple images are not available
