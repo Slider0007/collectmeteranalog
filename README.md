@@ -63,7 +63,7 @@ Windows and macOS excecutables do not have any prediction functionality pre-inst
 is only available for linux and the complete tensorflow library is to large (600MB) for a single file application. 
 This functionality is only used while labeling the images, but the labeling process will also work without prediction.
 
-To enable image predictions (for labeling assistance):
+To enable image prediction assistance for labeling process for Windows and macOS:
 
 ```bash
 # Windows
@@ -71,6 +71,11 @@ pip install tensorflow
 
 # macOS
 pip install tensorflow-macos
+```
+
+Collect images + label them with image prediction assistance:
+```bash
+python -m collectmeteranalog --collect=<METER IP or NAME> --model=<MODEL FILE>
 ```
 
 
@@ -94,6 +99,9 @@ python -m collectmeteranalog --labeling="<IMAGE FOLDER>" --labelfile="<LABEL FIL
 ```
 
 ### Label File Syntax
+
+The label file is primarily used to refine and optimize existing labels. It is typically generated as an output 
+from a model training process. This file usually lists images where model's prediction deviation is high.
 
 **Modern Format:**
 ```csv

@@ -13,6 +13,7 @@ from collectmeteranalog.predict import predict
 from collectmeteranalog.__version__ import __version__
 from numpy import pi
 
+
 def ziffer_data_files(input_dir):
     '''return a list of all images in given input dir in all subdirectories'''
     imgfiles = []
@@ -22,7 +23,7 @@ def ziffer_data_files(input_dir):
                 imgfiles.append(root + "/" + file)
     
     imgfiles = sorted(imgfiles, key=lambda x : os.path.basename(x))
-    return  imgfiles
+    return imgfiles
 
 
 def label(path, startlabel=0.0, labelfile_path=None, ticksteps=1):

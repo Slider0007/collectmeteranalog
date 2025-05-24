@@ -99,11 +99,13 @@ def readimages(servername, output_dir, daysback=15):
 
     print(f"{count} images are loaded from meter: {servername}")
 
+
 def save_hash_file(images, hashfilename):
     f =  open(hashfilename, 'w', encoding='utf-8')
     for hash, img, meter, datum in images:
         f.write(datum + "\t" + meter+ "\t" + img + "\t" + str(hash)+'\n');
     f.close
+
 
 def load_hash_file(hashfilename):
     images = []
@@ -229,5 +231,3 @@ def collect(meter, path, days, keepolddata=False, download=True, startlabel=0, s
 
     # label now
     label(os.path.join(path, target_label_path), startlabel=startlabel, ticksteps=ticksteps)
-
-
