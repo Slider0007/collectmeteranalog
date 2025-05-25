@@ -14,7 +14,7 @@
 - App: Implement application version handling
   - Source of version: `collectmeteranalog/__version__.py`
   - New parameter `--version`
-  - Automatically inject version to all build processes
+  - Automatically inject version to all build processes and GUI (window title)
   - Use version in github actions for artifacts
 
 ### Changed

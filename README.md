@@ -1,6 +1,8 @@
 # Image Collection and Labeling App for Analog Dials
 
-Help us improve analog dial predictions by collecting and labeling image data from your own meter device!
+Image collection and labeling application for analog dial images collected from 
+[AI-on-the-Edge Devices](https://github.com/jomjol/AI-on-the-edge-device). Improve analog dial predictions 
+by collecting and labeling image data from your own meter device!
 
 
 ## Device Preparation
