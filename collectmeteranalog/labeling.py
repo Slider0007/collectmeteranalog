@@ -53,12 +53,12 @@ def label(path, startlabel=0.0, labelfile_path=None, ticksteps=1):
             files_df = pd.read_csv(labelfile_path, index_col="Index", usecols=["Index", "File", "Predicted"])
 
             # Add path to file name
-            files_df["Path"] = files_df["File"].apply(lambda f: os.path.join(path, f))
+            files_df["FilePath"] = files_df["File"].apply(lambda f: os.path.join(path, f))
 
-            # Keep only entries where file physically exists
-            files_df = files_df[files_df["Path"].apply(os.path.exists)]
+            # Keep only entries where file exists
+            files_df = files_df[files_df["FilePath"].apply(os.path.exists)]
 
-            # Extract predicted value
+            # Load prediction from labelfile if column is available
             if "Predicted" in files_df.columns:
                 labelfile_prediction = files_df["Predicted"].to_numpy().reshape(-1)
                 print("labelfile: Prediction data available")
@@ -66,7 +66,12 @@ def label(path, startlabel=0.0, labelfile_path=None, ticksteps=1):
                 labelfile_prediction = []
                 print("labelfile: No prediction data available")
 
-            files = files_df["Path"].to_numpy()
+            files = files_df["FilePath"].to_numpy()
+
+            if len(files) > 0:
+                print(f"Loading images from path: {os.path.dirname(files[0])}")
+            else:
+                raise SystemExit("Image file list empty. No files to load")
 
         except Exception as e:
             print(f"Columns 'Index, File, Predicted' in labelfile not found. Try loading labelfile in legacy format...")
