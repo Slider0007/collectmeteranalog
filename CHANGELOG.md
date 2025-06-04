@@ -7,8 +7,8 @@
   - New parameter: `--collectpath`
 - Label: Add possibilty to define the labeled images root folder working with label file
   - Define `--labeling` and `--labelfile` at the same time using different paths
-- Label: Support label file with prediction data (modern syntax)
-  - Legacy label file syntax is still supported
+- Label: Support label file with prediction data (modern csv file syntax)
+  - Label file with legacy syntax (only index, file path) is still supported
 - Label: Show prediction value parsed from label file
   - Precondition: Label file with modern syntax + No model selected
 - App: Implement application version handling
@@ -19,10 +19,12 @@
 
 ### Changed
 - Collect: Fix image download counter
-- Collect: Add http prefix only if missing
-- Label: Refactored model prediction functionality
-- Label: Refactor button alignment
-- App: Fix exit(1) is unknown error
+- Collect: Fix `keepdownloads` option - do not delete `images_raw` content
+- Collect: Save downloaded JPG images without decode/encode to preserve original quality
+- Collect: Refactor / streamline `readimages` function
+- Label: Refactor functions for model prediction (`load_interpreter`, `predict`)
+- Label: Refactor GUI button alignment / size
+- App: Fix exit(1) - unknown error
 - App: Refactored readme
 - App: Updated github actions
 
